@@ -1,0 +1,64 @@
+Norway Maple: Acer platanoides
+Eastern Cottonwood: Populus deltoides
+Boxelder: Acer negundo
+Canadian Hemlock: Tsuga canadensis
+Blue Spruce: Picea pungens
+White Oak: Quercus alba
+Austrian Pine: Pinus nigra
+Pin Oak: Quercus palustris
+Crabapple: Malus sp.
+Red Mulberry: Morus rubra
+Red Oak: Quercus rubra
+Black Cherry: Prunus serotina
+American Elm: Ulmus americana
+Flowering Dogwood: Cornus florida
+White Pine: Pinus strobus
+Scotch Pine: Pinus sylvestris
+Serviceberry: Amelanchier sp.
+Bur Oak: Quercus macrocarpa
+Sugar Maple: Acer saccharum
+Pyramidal (Upright) English Oak: Quercus robur 'Fastigiata'
+Gingko: Ginkgo biloba
+(Check the CommonName column)
+(Validate with the two lists)
+Freemanii Maple: Acer Freemanii
+Horse Chestnut: Aesculus hippocastanum
+Red Maple: Acer rubrum
+Black Locust: Robinia pseudoacacia
+*London Plane Tree: Platanus ×(?) acerifolia
+Magnolia: Magnolia grandiflora
+*Hawthorn: Crataegus sp.
+Littleleaf Linden: Tilia cordata
+Japanese Maple: Acer palmatum
+Douglas Fir: Pseudotsuga menziesii
+Silver Maple: Acer saccharinum
+Kentucky Coffee Tree: Gymnocladus dioicus
+Chinese Scholartree: Styphnolobium japonicum
+Kousa Dogwood: Cornus kousa
+Flowering Cherry: Prunus serrulata
+*Flowering Crabapple: Malus sp.
+European Beech: Fagus sylvatica
+*Arborvitae: Thuja sp.
+Honey Locust: Gleditsia triacanthos
+Yellow Birch: Betula alleghaniensis
+Yellowwood: Cladrastis kentukea
+*Zelkova: Zelkova sp.
+American Sweetgum: Liquidambar styraciflua
+Paper Birch: Betula papyrifera
+Black Tupelo: Nyssa sylvatica
+Norway Spruce: Picea abies
+Tree of Heaven: Ailanthus altissima
+Black Walnut: Juglans nigra
+American Beech: Fagus grandifolia
+Red Pine: Pinus resinosa
+Eastern Red Cedar: Juniperus virginiana
+Balsam Fir: Abies balsame
+Bradford Pear: Pyrus calleryana
+Green Ash: Fraxinus pennsylvanica
+American Linden: Tilia americana
+American Larch: Larix laricina
+Weeping Cherry: Prunus pendula
+Red Bud: Cercis canadensis
+Tulip Poplar: Liriodendron tulipifera
+*Saucer Magnolia: Magnolia ×(?) soulangeana
+
