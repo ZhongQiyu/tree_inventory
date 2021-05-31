@@ -1,18 +1,19 @@
-import re
+# import re
 # import docx
 # import codecs
 # import urllib
 import pandas as pd
 import numpy as np
-from googlesearch import search
+# from googlesearch import search
 from constants import *
 # from selenium import webdriver
 
 
-# transform to a python class
 # try to use debugger
 # use colab? (no quite since not yet on the data-science/data-analytics level)
-# mainly the office machines are Windows-based
+# handle the I/O since most of the office machines are Windows-based
+# try to link this with thesis (the dataset of campus images)
+
 # http://www.simsgis.org/lite/
 # https://medium.com/@soumyabrataroy/automate-the-google-search-using-python-b93e4621eb8b
 # https://www.geeksforgeeks.org/performing-google-search-using-python-code/
@@ -32,19 +33,22 @@ from constants import *
 # 5/8/21 requests.exceptions.HTTPError: 429 Client Error: Too Many Requests for url:
 # (searching url); resolved (by switching a method to tackle)
 
-# try to link this with thesis (the dataset of campus images)
+# try to abstract each instance as an object
 
 class Inventory:
     """
     This Python class models a tree inventory in an educational institution's
     context. It mainly contains the data copied from an Excel file where all
-    records of plants are stored. In this case, the
+    records of trees planted in Union College's campus are stored. The class
+    can access the features of data, modify their attributes, calculate stats,
+    and format the data back to CSV files at this moment.
     """
-    # data
-    # get
-    # set
-    # calc_stats
-    # add_data
+    # get_features
+    # set_features
+    # get_data
+    # set_data
+    # calc_..._stats
+    # format_data (to .csv)
     def __init__(self, inventory_path):
         """
 
@@ -96,14 +100,14 @@ class Inventory:
         :return:
         """
         return set([sci_name if sci_name.find(" ") == -1 else sci_name[:sci_name.find(" ")]
-                    for sci_name in self.get_mapping().values()])
+                    for sci_name in COM_SCI_DICT.values()])
 
     def get_genus_stats(self):
         """
 
         :return:
         """
-        mapping = self.get_mapping()
+        mapping = COM_SCI_DICT
         genera = self.get_genera()
         data = self.get_data()
         com_names = pd.Series(data[COM_NAME])
@@ -147,7 +151,7 @@ class Inventory:
         :param sci_name:
         :return: the common name
         """
-        mapping = self.get_mapping()
+        mapping = COM_SCI_DICT
         com_names = list(mapping.keys())
         sci_names = list(mapping.values())
         return com_names[sci_names.index(sci_name)]
@@ -159,7 +163,7 @@ class Inventory:
         # want to specify what genus does a species belong to, so return the full unprocessed scientific name
         :return:
         """
-        return [sci_name for sci_name in self.get_mapping().values()]
+        return [sci_name for sci_name in COM_SCI_DICT.values()]
 
     def get_species_stats(self):
         """
@@ -168,7 +172,7 @@ class Inventory:
         """
         # some redundancy when refer to get_genus_stats()
         # maybe better variable names
-        mapping = self.get_mapping()
+        mapping = COM_SCI_DICT
         species = self.get_species()
         data = self.get_data()
         com_names = data[COM_NAME]
