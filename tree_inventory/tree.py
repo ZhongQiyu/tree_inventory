@@ -2,7 +2,7 @@
 # linking the idea of visualizing the features of a tree in a three-dimensional way
 # input: (maybe) eight photo captures of a tree
 # output: the states of the branches, etc. (like the physical status but decomposed to many things)
-
+# update GitHub
 # would it be useful to import the tree inventory file, and then extract all the features it has right now,
 # to perform analytics?
 
@@ -33,3 +33,11 @@ import pandas as pd
 # test_re = re.compile("//w{3}")
 # family_re = "/([A-Z]){1}([a-z]){1,10}aceae"
 # print(test_re.match("http://www.theplantlist.org/browse/A/Malvaceae/Tilia/"))
+
+class Tree:
+    def __init__(self, com_name):
+        """
+        Initialize an instance of a tree, given its common name.
+        :param com_name: the common name of the tree.
+        """
+        self.com_name = com_name
