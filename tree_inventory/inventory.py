@@ -9,32 +9,6 @@ from constants import *
 # from selenium import webdriver
 
 
-# try to use debugger
-# use colab? (no quite since not yet on the data-science/data-analytics level)
-# handle the I/O since most of the office machines are Windows-based
-# try to link this with thesis (the dataset of campus images)
-
-# http://www.simsgis.org/lite/
-# https://medium.com/@soumyabrataroy/automate-the-google-search-using-python-b93e4621eb8b
-# https://www.geeksforgeeks.org/performing-google-search-using-python-code/
-# https://stackoverflow.com/questions/13962006/using-python-to-ask-a-web-page-to-run-a-search
-# https://www.crummy.com/software/BeautifulSoup/bs4/doc/
-# https://stackoverflow.com/questions/247770/how-to-retrieve-a-modules-path
-# https://stackoverflow.com/questions/22786068/how-to-avoid-http-error-429-too-many-requests-python
-# https://en.wikipedia.org/wiki/List_of_plant_genus_names_(A-C)
-# https://en.wikipedia.org/wiki/List_of_plant_genus_names_(D-K)
-# https://en.wikipedia.org/wiki/List_of_plant_genus_names_(L-P)
-# https://en.wikipedia.org/wiki/List_of_plant_genus_names_(Q-Z)
-# https://wikitable2csv.ggor.de/
-# https://stackoverflow.com/questions/11346283/renaming-columns-in-pandas
-
-# bug record
-# 5/4/21 UnicodeDecodeError: 'utf-8' codec can't decode byte 0xd4 in position 271: invalid continuation byte; resolved
-# 5/8/21 requests.exceptions.HTTPError: 429 Client Error: Too Many Requests for url:
-# (searching url); resolved (by switching a method to tackle)
-
-# try to abstract each instance as an object
-
 class Inventory:
     """
     This Python class models a tree inventory in an educational institution's
@@ -49,6 +23,7 @@ class Inventory:
     # set_data
     # calc_..._stats
     # format_data (to .csv)
+    # pull the databases constructed from constants.py
     def __init__(self, inventory_path):
         """
 
@@ -65,7 +40,7 @@ class Inventory:
         """
         return self.data
 
-    def set_data(self, inventory_path):
+    def set_data(self, inventory_path):  # modify Excel sheet directly from Python
         """
         Set the inventory's data, given a file path of an
         existent inventory.
@@ -73,7 +48,7 @@ class Inventory:
         """
         self.data = pd.read_excel(inventory_path)
 
-    def get_gen_s_count(self):
+    def get_gen_s_count(self):  # count the number of effective data points
         """
 
         :return:
