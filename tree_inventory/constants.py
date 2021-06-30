@@ -53,29 +53,32 @@ import pandas as pd
 # figure out the unit of the coordinates in the dset
 
 # 6/29/21 meeting agenda
-# 1. project update: finalize statistical module, have a initial version of formatting
-# 2. aggregate Joe's resources
+# 1. project update:
+#    clean the code (#1),
+#    finalize statistical module (constants.py, ...),
+#    have a initial version of formatting.
+#    should I replace the mapping given by Joe with the parsed one? be aware of timeline.
+#    should I convert the constants.py module to a Python class?
+# 2. extensive learning: aggregate Joe's resources
 # 3. system logistics: BootCamp if needed, research the compatibility of ArcGIS software
+# from the meeting
+# 1. merge the datasets, and focus on the
+# 2. research the dataset features: the system of the GPS coordinates (look at the phone screenshot)
+# 3. differential correction wizard
+
+# 7/13/21 meeting agenda
+# 1. project update:
+#    review the features of the new data table
+#    finalize constants module
+#    complete the module to calculate the distributions of families
+#    formalize the design of formatting
+
 
 # bug record
 # 5/4/21 UnicodeDecodeError: 'utf-8' codec can't decode byte 0xd4 in position 271: invalid continuation byte; resolved
 # 5/8/21 requests.exceptions.HTTPError: 429 Client Error: Too Many Requests for url:
 # (searching url); resolved (by switching a method to tackle)
 # 6/21/21 TypeError: first argument must be an iterable of pandas objects, you passed an object of type "Series"
-
-SUPERDIR_PATH = "/Users/allenzhong/Downloads/tree_inventory/"  # need to change when runs on a different machine
-COM_PATH = "Accurate Treelist Common 2.1.txt"
-SCI_PATH = "Accurate Treelist Scientific 2.1.txt"
-INVENTORY_PATH = "Tree_TableToExcel3.xlsx"
-FAM_GEN_DICTS = ["genus (A-C).csv", "genus (D-K).csv", "genus (L-P).csv", "genus (Q-Z).csv"]
-COM_NAME = "Name_Common"  # perform data cleansing in the dataset
-CULTIVAR_REPR = ", var."
-GEN_SPECIES_REPR = "sp."
-MOD_SPECIES = "*species*"
-CROSS_REPR = "X"
-FAM_NAME = "scientific family name of"  # see if still necessary to remain
-COM_SCI_DB = None
-FAM_GEN_DB = None
 
 
 def init_collection(path):
@@ -109,7 +112,7 @@ def map_com_sci(com_path, sci_path):
     :return: the mapping from common names to scientific ones, in terms of
     their affiliation to trees.
     """
-    mapping = {}
+    mapping = {}  # convert to DataFrame?
     com_collection, sci_collection = init_collections(com_path, sci_path)
     current_com_line = com_collection.readline().strip("\n")
     current_sci_line = sci_collection.readline().strip("\n")
@@ -174,16 +177,55 @@ def map_fam_gen(dicts):
     return mapping
 
 
-def main():
+def get_name(com_or_sci):
     """
-    Driver function that initializes the databases.
+    Get the name of a tree, either common or scientific,
+    and return the name on the other way around.
+    :param com_or_sci: the common or scientific name of the tree.
+    :return: the tree's scientific or common name.
     """
-    globals()["COM_SCI_DB"] = map_com_sci(SUPERDIR_PATH + COM_PATH, SUPERDIR_PATH + SCI_PATH)  # or transform dict to DF
-    globals()["FAM_GEN_DB"] = map_fam_gen(FAM_GEN_DICTS)
+    if com_or_sci in COM_SCI_DB.keys():  # the passed name is a common name
+        com_name = com_or_sci
+        return COM_SCI_DB[com_name]
+    else:  # the passed name is a scientific name
+        sci_name = com_or_sci
+        return {sci_name: com_name for (com_name, sci_name) in COM_SCI_DB.items()}[sci_name]
 
 
-if __name__ == "__main__":
-    main()
+def get_family(genus):
+    """
+    Get the family of a genus of tree(s), given the genus.
+    :param genus: the genus of the tree(s).
+    :return: the family of such branch of tree(s).
+    """
+    return FAM_GEN_DB.iloc[FAM_GEN_DB.index[FAM_GEN_DB[GEN] == genus]][FAM]
+
+
+def get_fam_gen(species):
+    """
+    Get the family and genus of a species of tree(s), given the species.
+    :param species: the species of the tree(s).
+    :return: the family and genus of such branch of tree(s).
+    """
+    genus = species[:species.index(" ")]
+    family = get_family(genus)
+    return family, genus
+
+
+SUPERDIR_PATH = "/Users/allenzhong/Downloads/tree_inventory/"  # need to change when runs on a different machine
+COM_PATH = "Accurate Treelist Common 2.1.txt"
+SCI_PATH = "Accurate Treelist Scientific 2.1.txt"
+INVENTORY_PATH = "Tree_TableToExcel3.xlsx"
+FAM_GEN_DICTS = ["genus (A-C).csv", "genus (D-K).csv", "genus (L-P).csv", "genus (Q-Z).csv"]
+COM_NAME = "Name_Common"  # perform data cleansing in the dataset
+CULTIVAR_REPR = ", var."
+GEN_SPECIES_REPR = "sp."
+MOD_SPECIES = "*species*"
+CROSS_REPR = "X"
+FAM = "Family"
+GEN = "Genus"
+COM_SCI_DB = map_com_sci(SUPERDIR_PATH + COM_PATH, SUPERDIR_PATH + SCI_PATH)
+FAM_GEN_DB = map_fam_gen(FAM_GEN_DICTS)
 
 
 # reference (try to have a sorting algorithm)
