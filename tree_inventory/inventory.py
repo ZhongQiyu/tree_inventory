@@ -24,14 +24,33 @@ class Inventory:
     # calc_..._stats
     # format_data (to .csv)
     # pull the databases constructed from constants.py
-    def __init__(self, inventory_path):
+    def __init__(self, path):
         """
-
-        :param inventory_path:
+        Initialize a tree inventory object, with a given
+        file path of the inventory file.
+        :param path: the file path of the tree inventory.
         """
-        self.data = pd.read_excel(inventory_path)
+        self.data = pd.read_excel(path)
         self.gen_s_count = 0  # to confirm
         # ?
+
+    @staticmethod
+    def test_globals():
+        """
+
+        :return:
+        """
+        for global_name, global_val in globals().items():
+            print(f"name: {global_name}, val: {global_val}")
+
+    @staticmethod
+    def test_locals():
+        """
+
+        :return:
+        """
+        for local_name, local_val in locals().items():
+            print(f"name: {local_name}, val: {local_val}")
 
     def get_data(self):
         """
@@ -63,7 +82,20 @@ class Inventory:
         """
         self.gen_s_count = new_count
 
-    # def get_family(self):
+    def get_family(self):
+        """
+        Get the families of the trees listed in the inventory as a set.
+        :return: the parsed families of the trees listed in the inventory as a set.
+        """
+        data = self.get_data()
+        inst_count = len(data)
+        for index in range(inst_count):
+            ...  # pick up from here
+            # fam
+            # get_family()
+        com_names = set(COM_SCI_DB.keys())
+        # sci_names = self.
+        return set()
 
     # def get_family_stats(inventory):
 
@@ -75,14 +107,14 @@ class Inventory:
         :return:
         """
         return set([sci_name if sci_name.find(" ") == -1 else sci_name[:sci_name.find(" ")]
-                    for sci_name in COM_SCI_DICT.values()])
+                    for sci_name in COM_SCI_DB.values()])
 
     def get_genus_stats(self):
         """
 
         :return:
         """
-        mapping = COM_SCI_DICT
+        mapping = COM_SCI_DB
         genera = self.get_genera()
         data = self.get_data()
         com_names = pd.Series(data[COM_NAME])
@@ -120,17 +152,6 @@ class Inventory:
         """
         valid_data_points = len(self.get_data()[COM_NAME]) - self.get_gen_s_count()
 
-    def get_com_name(self, sci_name):
-        """
-
-        :param sci_name:
-        :return: the common name
-        """
-        mapping = COM_SCI_DICT
-        com_names = list(mapping.keys())
-        sci_names = list(mapping.values())
-        return com_names[sci_names.index(sci_name)]
-
     # try to combine species statistics with those of genera
 
     def get_species(self):
@@ -138,16 +159,16 @@ class Inventory:
         # want to specify what genus does a species belong to, so return the full unprocessed scientific name
         :return:
         """
-        return [sci_name for sci_name in COM_SCI_DICT.values()]
+        return [sci_name for sci_name in COM_SCI_DB.values()]
 
     def get_species_stats(self):
         """
-
+        Obtain the statistics of the species
         :return:
         """
         # some redundancy when refer to get_genus_stats()
         # maybe better variable names
-        mapping = COM_SCI_DICT
+        mapping = COM_SCI_DB
         species = self.get_species()
         data = self.get_data()
         com_names = data[COM_NAME]
@@ -182,6 +203,8 @@ class Inventory:
             else:
                 print(f'There are {count} {species} tree(s) across the campus, with a percentage of {percentage:.2f}%.')
 
+    # get the percentage
+
     # use a generic show() method and then differ
 
     # def reformat(self, stats):
@@ -196,6 +219,13 @@ class Inventory:
         """
         # one(?) helper on reformatting
         # three helpers on generating text files (family, genus, species)
+
+
+if __name__ == "__main__":
+    # Inventory.test_globals()
+    # Inventory.test_locals()
+    for name, val in vars("constants.py").items():
+        print(f"name: {name}, val: {val}")
 
 # wrap everything modularly in a main() call
 
