@@ -68,8 +68,10 @@ import pandas as pd
 
 # 7/13/21 meeting agenda
 # 1. project update:
-#    review the features of the new data table
+#    review the features of the new data table, and add them to the old one
 #    finalize constants module
+#    re-concatenate the DataFrames (7/5/21)
+#    update Wikipedia page with Robinia (https://en.wikipedia.org/wiki/List_of_plant_genus_names_(Q%E2%80%93Z))
 #    complete the module to calculate the distributions of families
 #    formalize the design of formatting
 
@@ -129,10 +131,12 @@ def map_com_sci(com_path, sci_path):
 
 def modify(current_sci_line):
     """
+    Modify the input of a line of scientific name,
+    and return the modified results.
     # handle three special input of scientific names
     (move to Constants, as a helper of set_mapping())
-    :param current_sci_line:
-    :return:
+    :param current_sci_line: the given line of scientific name.
+    :return: the modified results.
     """
     cultivar_index = current_sci_line.find(CULTIVAR_REPR)
     gen_species_index = current_sci_line.find(GEN_SPECIES_REPR)
@@ -198,7 +202,7 @@ def get_family(genus):
     :param genus: the genus of the tree(s).
     :return: the family of such branch of tree(s).
     """
-    return FAM_GEN_DB.iloc[FAM_GEN_DB.index[FAM_GEN_DB[GEN] == genus]][FAM]
+    return list(FAM_GEN_DB.iloc[FAM_GEN_DB.index[FAM_GEN_DB[GEN] == genus]][FAM])[0]
 
 
 def get_fam_gen(species):
@@ -215,7 +219,7 @@ def get_fam_gen(species):
 SUPERDIR_PATH = "/Users/allenzhong/Downloads/tree_inventory/"  # need to change when runs on a different machine
 COM_PATH = "Accurate Treelist Common 2.1.txt"
 SCI_PATH = "Accurate Treelist Scientific 2.1.txt"
-INVENTORY_PATH = "Tree_TableToExcel3.xlsx"
+INVENTORY_PATH = "Tree_TableToExcel3.csv"
 FAM_GEN_DICTS = ["genus (A-C).csv", "genus (D-K).csv", "genus (L-P).csv", "genus (Q-Z).csv"]
 COM_NAME = "Name_Common"  # perform data cleansing in the dataset
 CULTIVAR_REPR = ", var."
