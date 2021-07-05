@@ -30,7 +30,8 @@ class Inventory:
         file path of the inventory file.
         :param path: the file path of the tree inventory.
         """
-        self.data = pd.read_excel(path)
+        self.data = None
+        self.set_data(path)
         self.gen_s_count = 0  # to confirm
         # ?
 
@@ -65,9 +66,16 @@ class Inventory:
         existent inventory.
         :param inventory_path: the file path of the inventory.
         """
-        self.data = pd.read_excel(inventory_path)
+        if any([excel_format in inventory_path for excel_format in [".xls", ".xlsx"]]):
+            self.data = pd.read_excel(inventory_path)
+        elif ".csv" in inventory_path:
+            self.data = pd.read_csv(inventory_path)
+        else:  # hopefully the input would be delimited, otherwise to handle exceptions
+            self.data = pd.read_table(inventory_path)
 
-    def get_gen_s_count(self):  # count the number of effective data points
+    def get_gen_s_count(self):
+        # count the number of effective data points...
+        # does this overlap with validate()?
         """
 
         :return:
@@ -82,26 +90,41 @@ class Inventory:
         """
         self.gen_s_count = new_count
 
-    def get_family(self):
+    def get_families(self):
         """
         Get the families of the trees listed in the inventory as a set.
         :return: the parsed families of the trees listed in the inventory as a set.
         """
+        # consider adding dependency between the data file
+        # and the constants in an appropriate manner.
         data = self.get_data()
         inst_count = len(data)
+        fam_db = []
         for index in range(inst_count):
-            ...  # pick up from here
-            # fam
-            # get_family()
-        com_names = set(COM_SCI_DB.keys())
-        # sci_names = self.
-        return set()
+            com_name = data[COM_NAME].iloc[index]
+            species = get_name(com_name)
+            family, _ = get_fam_gen(species)
+            print(f"{index}: Species {species} has a family of {family}.")
+            # pick up from here
+            if family not in fam_db:
+                fam_db.append(family)
+        print(fam_db)
+        # return set()
 
-    # def get_family_stats(inventory):
+    def get_family_stats(inventory):
+        """
 
-    # def show_family_stats(inventory):
+        :return:
+        """
 
-    def get_genera(self):
+    def show_family_stats(inventory):
+        """
+
+        :return:
+        """
+
+    @staticmethod
+    def get_genera():
         """
 
         :return:
@@ -154,7 +177,8 @@ class Inventory:
 
     # try to combine species statistics with those of genera
 
-    def get_species(self):
+    @staticmethod
+    def get_species():
         """
         # want to specify what genus does a species belong to, so return the full unprocessed scientific name
         :return:
@@ -169,6 +193,7 @@ class Inventory:
         # some redundancy when refer to get_genus_stats()
         # maybe better variable names
         mapping = COM_SCI_DB
+        # for loop, cancel the self below
         species = self.get_species()
         data = self.get_data()
         com_names = data[COM_NAME]
@@ -189,14 +214,14 @@ class Inventory:
 
     def show_species_stats(self, species_stats):
         """
-
+        Display the statistics of the species based on the inventory data.
         :return:
         """
         # to transform to a more generic version
         valid_data_points = len(self.get_data()[COM_NAME]) - self.get_gen_s_count()
         all_count = sum(species_stats.values())
         for species, count in species_stats.items():
-            species = self.get_com_name(species)
+            species = get_name(species)
             percentage = count/valid_data_points*100
             if percentage == 0:
                 print(f'There are no {species} tree(s) across the campus.')
@@ -219,13 +244,18 @@ class Inventory:
         """
         # one(?) helper on reformatting
         # three helpers on generating text files (family, genus, species)
+        # call reformat()
+        # com_names = set(COM_SCI_DB.keys())
+        # sci_names = self.
 
 
 if __name__ == "__main__":
     # Inventory.test_globals()
     # Inventory.test_locals()
-    for name, val in vars("constants.py").items():
-        print(f"name: {name}, val: {val}")
+    # for name, val in vars("constants.py").items():
+    #     print(f"name: {name}, val: {val}")
+    inventory = Inventory(SUPERDIR_PATH + INVENTORY_PATH)
+    inventory.get_families()
 
 # wrap everything modularly in a main() call
 
