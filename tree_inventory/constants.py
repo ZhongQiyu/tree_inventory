@@ -1,3 +1,4 @@
+import os
 import pandas as pd
 
 # to research: file closing
@@ -69,9 +70,9 @@ import pandas as pd
 # 7/13/21 meeting agenda
 # 1. project update:
 #    review the features of the new data table, and add them to the old one
-#    finalize constants module
-#    re-concatenate the DataFrames (7/5/21)
-#    update Wikipedia page with Robinia (https://en.wikipedia.org/wiki/List_of_plant_genus_names_(Q%E2%80%93Z))
+#    finalize constants module: might want to consider .xlsx instead of .csv for the dataset
+#    re-concatenate the DataFrames: review columns C&G, ask about sub-family in Wikipedia
+#    update Wikipedia page with Magnolia, Robinia if needed (7/6/21)
 #    complete the module to calculate the distributions of families
 #    formalize the design of formatting
 
@@ -114,19 +115,19 @@ def map_com_sci(com_path, sci_path):
     :return: the mapping from common names to scientific ones, in terms of
     their affiliation to trees.
     """
-    mapping = {}  # convert to DataFrame?
+    com_sci_db = {}  # convert to DataFrame?
     com_collection, sci_collection = init_collections(com_path, sci_path)
     current_com_line = com_collection.readline().strip("\n")
     current_sci_line = sci_collection.readline().strip("\n")
     while current_com_line and current_sci_line:
         # handle the special cases in naming
         current_sci_line = modify(current_sci_line)
-        mapping.update({current_com_line: current_sci_line})
+        com_sci_db.update({current_com_line: current_sci_line})
         current_com_line = com_collection.readline().strip("\n")
         current_sci_line = sci_collection.readline().strip("\n")
     com_collection.close()
     sci_collection.close()
-    return mapping
+    return com_sci_db
 
 
 def modify(current_sci_line):
@@ -151,34 +152,36 @@ def modify(current_sci_line):
     return current_sci_line
 
 
-def map_fam_gen(dicts):
+def map_fam_gen(dsets):
     """
-    Map the family with genus, given the constructed families and genera databases.
-    :param dicts:
-    :return: The mapping of family to genus, keyed by family primarily.
+    Map the family with genus, given the constructed families and genera datasets.
+    :param dsets: the datasets of the families and genera.
+    :return: The database of family and genus, keyed by family primarily.
     """
     agg_data = []
-    # concatenate the family-genus dictionaries
-    for name_dict in dicts:
-        dict_path = SUPERDIR_PATH + name_dict
-        data = pd.read_csv(dict_path)
-        # reformat the column names
-        new_columns = [col[:col.find("[")] if col.find("[") != -1 else col for col in data.columns]
-        data.columns = new_columns
-        agg_data.append(data)
-    agg_data = pd.concat(agg_data)
-    # reformat the concatenated dictionary's indices
-    new_indices = pd.Int64Index(range(len(agg_data.index)))
-    agg_data.index = new_indices
-    # send back as a CSV file
-    agg_path = SUPERDIR_PATH + "genus (ALL).csv"
-    agg_data.to_csv(path_or_buf=agg_path)
+    # if the file has not existed yet, generate one from given datasets
+    agg_path = SUPERDIR_PATH + FAM_GEN_PATH
+    if not os.path.exists(agg_path):
+        # concatenate the family-genus dictionaries
+        for name_dict in dsets:
+            dict_path = SUPERDIR_PATH + name_dict
+            data = pd.read_csv(dict_path)
+            # reformat the column names
+            new_columns = [col[:col.find("[")] if col.find("[") != -1 else col for col in data.columns]
+            data.columns = new_columns
+            agg_data.append(data)
+        agg_data = pd.concat(agg_data)
+        # reformat the concatenated dictionary's indices
+        new_indices = pd.Int64Index(range(len(agg_data.index)))
+        agg_data.index = new_indices
+        # send back as a CSV file
+        agg_data.to_csv(path_or_buf=agg_path)
     # map families and genera
     new_data = pd.read_csv(agg_path)
     families = new_data["Family"]
     genera = new_data["Genus"]
-    mapping = pd.concat([families, genera], axis=1)
-    return mapping
+    fam_gen_db = pd.concat([families, genera], axis=1)
+    return fam_gen_db
 
 
 def get_name(com_or_sci):
@@ -221,11 +224,12 @@ COM_PATH = "Accurate Treelist Common 2.1.txt"
 SCI_PATH = "Accurate Treelist Scientific 2.1.txt"
 INVENTORY_PATH = "Tree_TableToExcel3.csv"
 FAM_GEN_DICTS = ["genus (A-C).csv", "genus (D-K).csv", "genus (L-P).csv", "genus (Q-Z).csv"]
+FAM_GEN_PATH = "genus (ALL).csv"
 COM_NAME = "Name_Common"  # perform data cleansing in the dataset
 CULTIVAR_REPR = ", var."
 GEN_SPECIES_REPR = "sp."
 MOD_SPECIES = "*species*"
-CROSS_REPR = "X"
+CROSS_REPR = "X"  # consider modify the data structure
 FAM = "Family"
 GEN = "Genus"
 COM_SCI_DB = map_com_sci(SUPERDIR_PATH + COM_PATH, SUPERDIR_PATH + SCI_PATH)
