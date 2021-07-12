@@ -1,14 +1,21 @@
 import os
 import pandas as pd
 
+# the minimum difficulty of the project could be 120, and the maximum may goes beyond 321.
+# so consult more professors and peers about the project.
+
+# try to abstract each instance as an object
+
+# try to use:
+# 1. the debugger
+# 2. colab? (no quite since not yet on the data-science/data-analytics level)
+
 # to research: file closing
 # to research: read lines in a .docx file without any conversion
 # to research: browser = webdriver.Chrome("/Users/allen/Downloads/chromedriver")
-# try to use debugger
-# use colab? (no quite since not yet on the data-science/data-analytics level)
-# handle the I/O since most of the office machines are Windows-based
+# handle the I/O by developing a Windows version, since most of the office machines are Windows-based
+
 # try to link this with thesis (the dataset of campus images)
-# try to abstract each instance as an object
 
 # 5/28/21 meeting agenda
 # 1. code update - share GitHub
@@ -69,10 +76,10 @@ import pandas as pd
 
 # 7/13/21 meeting agenda
 # 1. project update:
-#    review the features of the new data table, and add them to the old one
+#    review the features of the new data table, and add them to the old one (7/8/21)
 #    finalize constants module: might want to consider .xlsx instead of .csv for the dataset
-#    re-concatenate the DataFrames: review columns C&G, ask about sub-family in Wikipedia
-#    update Wikipedia page with Magnolia, Robinia if needed (7/6/21)
+#    re-concatenate the DataFrames: review columns C&G, add more references, and ask about sub-family in Wikipedia
+#    update Wikipedia page with Magnolia, Robinia, Gleditsia if needed
 #    complete the module to calculate the distributions of families
 #    formalize the design of formatting
 
@@ -161,11 +168,11 @@ def map_fam_gen(dsets):
     agg_data = []
     # if the file has not existed yet, generate one from given datasets
     agg_path = SUPERDIR_PATH + FAM_GEN_PATH
-    if not os.path.exists(agg_path):
+    if not os.path.exists(agg_path):  # to increase the robustness
         # concatenate the family-genus dictionaries
-        for name_dict in dsets:
-            dict_path = SUPERDIR_PATH + name_dict
-            data = pd.read_csv(dict_path)
+        for dset in dsets:
+            dset_path = SUPERDIR_PATH + dset
+            data = pd.read_csv(dset_path)
             # reformat the column names
             new_columns = [col[:col.find("[")] if col.find("[") != -1 else col for col in data.columns]
             data.columns = new_columns
@@ -174,11 +181,11 @@ def map_fam_gen(dsets):
         # reformat the concatenated dictionary's indices
         new_indices = pd.Int64Index(range(len(agg_data.index)))
         agg_data.index = new_indices
-        # send back as a CSV file
-        agg_data.to_csv(path_or_buf=agg_path)
+        # send back as an Excel data sheet
+        agg_data.to_excel(excel_write=agg_path)
     # map families and genera
-    new_data = pd.read_csv(agg_path)
-    families = new_data["Family"]
+    new_data = pd.read_excel(agg_path)
+    families = new_data["Family"]  # pick up from here (7/8/21): revise the dataset
     genera = new_data["Genus"]
     fam_gen_db = pd.concat([families, genera], axis=1)
     return fam_gen_db
@@ -224,7 +231,7 @@ COM_PATH = "Accurate Treelist Common 2.1.txt"
 SCI_PATH = "Accurate Treelist Scientific 2.1.txt"
 INVENTORY_PATH = "Tree_TableToExcel3.csv"
 FAM_GEN_DICTS = ["genus (A-C).csv", "genus (D-K).csv", "genus (L-P).csv", "genus (Q-Z).csv"]
-FAM_GEN_PATH = "genus (ALL).csv"
+FAM_GEN_PATH = "genus (ALL).xlsx"
 COM_NAME = "Name_Common"  # perform data cleansing in the dataset
 CULTIVAR_REPR = ", var."
 GEN_SPECIES_REPR = "sp."
