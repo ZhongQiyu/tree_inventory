@@ -4,6 +4,8 @@
 # import urllib
 import pandas as pd
 import numpy as np
+# %matplotlib inline
+import matplotlib.pyplot as plt  # (pick up from here (7/8/21))
 # from googlesearch import search
 from constants import *
 # from selenium import webdriver
@@ -90,36 +92,57 @@ class Inventory:
         """
         self.gen_s_count = new_count
 
-    def get_families(self):
+    def get_family_stats(self):
         """
-        Get the families of the trees listed in the inventory as a set.
-        :return: the parsed families of the trees listed in the inventory as a set.
+        Obtain the statistics of the families,
+        based on the data in the inventory.
+        :return: the database that records the family statistics.
         """
         # consider adding dependency between the data file
         # and the constants in an appropriate manner.
         data = self.get_data()
         inst_count = len(data)
-        fam_db = []
+        fam_stats = {}
+        com_names = data[COM_NAME]
         for index in range(inst_count):
-            com_name = data[COM_NAME].iloc[index]
+            com_name = com_names.iloc[index]
             species = get_name(com_name)
             family, _ = get_fam_gen(species)
-            print(f"{index}: Species {species} has a family of {family}.")
-            # pick up from here
-            if family not in fam_db:
-                fam_db.append(family)
-        print(fam_db)
-        # return set()
+            family_exists = family in fam_stats.keys()
+            if not family_exists:
+                fam_stats.update({family: {com_name: 1}})
+            else:
+                species_exists = com_name in fam_stats[family].keys()
+                if not species_exists:
+                    fam_stats[family].update({com_name: 1})
+                else:
+                    fam_stats[family][com_name] += 1
+        return fam_stats
 
-    def get_family_stats(inventory):
+    def format_family_stats(self):
         """
-
-        :return:
+        Format the statistics of trees in a family level, and
+        return the results of the formatted version.
+        :return: the formatted results of the tree family statistics.
         """
+        # use matplotlib here: histogram if possible
+        fam_stats = self.get_family_stats()
+        inst_count = len(self.get_data())
+        family_report = ""
+        for fam, stats in fam_stats.items():
+            fam_count = sum(list(stats.values()))
+            family_report += f"Family {fam} has {fam_count} instance(s) belonging to itself, " \
+                             f"which is {(fam_count/inst_count)*100:.2f}% of the population."
+            for species, count in stats.items():
+                sci_name = COM_SCI_DB[species]
+                family_report += f"\n   Species {species} (i.e. {sci_name}) has {count} instance(s) belonging to" \
+                                 f" itself, occupying {(count/fam_count)*100:.2f}% among the family's instances."
+            family_report += "\n\n"
+        return family_report.strip("\n")
 
-    def show_family_stats(inventory):
+    def validate_family_stats(self):
         """
-
+        Validate if there is any
         :return:
         """
 
@@ -230,12 +253,12 @@ class Inventory:
 
     # get the percentage
 
-    # use a generic show() method and then differ
-
     # def reformat(self, stats):
         # for data in stats:
         #     (refer to the sheets of scratch paper)
         #     (use a generic model and then vary with control logic)
+
+    # could it be possible to make a generic version of show_xxx_stats()?
 
     def gen_report(self, stats):
         """
@@ -255,7 +278,7 @@ if __name__ == "__main__":
     # for name, val in vars("constants.py").items():
     #     print(f"name: {name}, val: {val}")
     inventory = Inventory(SUPERDIR_PATH + INVENTORY_PATH)
-    inventory.get_families()
+    print(inventory.format_family_stats())
 
 # wrap everything modularly in a main() call
 
