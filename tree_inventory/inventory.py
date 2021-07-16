@@ -2,8 +2,8 @@
 # import docx
 # import codecs
 # import urllib
-import pandas as pd
 import numpy as np
+import pandas as pd
 # %matplotlib inline
 import matplotlib.pyplot as plt  # (pick up from here (7/8/21))
 # from googlesearch import search
@@ -135,46 +135,182 @@ class Inventory:
                              f"which is {(fam_count/inst_count)*100:.2f}% of the population."
             for species, count in stats.items():
                 sci_name = COM_SCI_DB[species]
-                family_report += f"\n   Species {species} (i.e. {sci_name}) has {count} instance(s) belonging to" \
+                family_report += f"\n   {species} (i.e. {sci_name}) has {count} instance(s) belonging to" \
                                  f" itself, occupying {(count/fam_count)*100:.2f}% among the family's instances."
             family_report += "\n\n"
         return family_report.strip("\n")
 
     def validate_family_stats(self):
         """
-        Validate if there is any
+        Validate if there is any family of trees in the dataset
+        that breaks the 30% threshold, and return a report that
+        shows the class(es) of trees which break(s) such limit.
+        :return: the report that contains the outlier famil(ies).
+        """
+        # change the data structure in the previous function if needed
+        # get some software development or engineering points of view
+        val_fam_stats = {}
+        inst_count = len(self.get_data())
+        fam_stats = self.get_family_stats()
+        max_diff = float("-inf")
+        max_fam = ""
+        for fam, stats in fam_stats.items():
+            fam_count = sum(list(stats.values()))
+            fam_prop = fam_count / inst_count
+            diff = fam_prop - FAM_LMT
+            val_fam_stats.update({fam: str(round(diff * 100, 4)) + "%"})
+            if diff > max_diff:
+                max_diff = diff
+                max_fam = fam
+            if diff > 0:
+                print(f"Family {fam} overshoots the threshold by {diff:.2f}.")
+        print(f"The family that has the largest proportion among all families is {max_fam}.")
+        return val_fam_stats
+
+    def viz_family_stats(self):
+        """
+        Visualize the statistics of families of trees in the inventory.
         :return:
         """
+        fam_stats = self.get_family_stats()
+        print(fam_stats)
+        # for each column in the bar chart, compose the bar with differently-colored
+        # sub-bars, each of which representing a species that belongs to the family
+
+    def store_family_stats(self):
+        """
+        Store the statistics of families of trees in the inventory
+        as a sheet-type file (.csv or .xls(x)). Return ..
+        :return: ...
+        """
+        fam_stats = self.get_family_stats()
+        print(fam_stats)
+        inst_count = len(self.get_data())
+        fam_stats_db = pd.DataFrame(columns=FAM_DB_FEATS)
+        fam_count = len(fam_stats.keys())
+        min_prop_fam, min_prop_pop = 1, 1
+        for fam, stats in fam_stats.items():
+            fam_inst_count = sum(list(stats.values()))
+            for spe, count in stats.items():
+                spe_sci = get_name(spe)
+                prop_fam = count / fam_inst_count
+                prop_pop = count / inst_count
+                if prop_fam < min_prop_fam:
+                    min_prop_fam = prop_fam
+                if prop_pop < min_prop_pop:
+                    min_prop_pop = prop_pop
+                inst_data = [spe_sci, fam, count, prop_fam, prop_pop]
+                inst = pd.Series(data={FAM_DB_FEATS[i]: inst_data[i] for i in range(FAM_DB_FEAT_COUNT)},
+                                 index=FAM_DB_FEATS)
+                fam_stats_db = fam_stats_db.append(inst, ignore_index=True)
+            print()
+        self.round_props(fam_stats_db)
+        print(fam_stats_db["% Within The Family"].sum())
+        print(fam_stats_db["% Within The Population"].sum())
 
     @staticmethod
+    def round_props(stats_db, round_digits):
+        """
+        Round up the percentage-based values in a database of statistics,
+        in terms of the inventory.
+        :param stats_db: the database to perform rounding up.
+        :param round_digits: the count of digits to round up.
+        :return: the database with corresponding values rounded up.
+        """
+        # generalize
+        for prop_count in range(FAM_DB_PROP_COUNT):
+            prop_name = FAM_DB_FEATS[FAM_DB_FEAT_COUNT - FAM_DB_PROP_COUNT + prop_count]
+            prop = stats_db[prop_name]
+            prop = prop.round(decimals=round_digits[prop_count])
+            stats_db[prop_name] = prop
+
+    # scientific name (common name) | (family name) | # of instances | % of the family | % of the population
+    # sort by % of the population in descending order
+    # preferably export as Excel table
+
+    # family_mapping = {}
+    # sci_names = list(inventory.get_mapping().values())
+    # type_ct = len(sci_names)
+    # NUM_RESULTS = 30
+    # for name in sci_names:
+    #     # handle the cases where the first result does not match (try to find some patterns)
+    #     # use urllib if necessary
+    #     genus = name[:name.index(" ")]
+    #     results = list(search(FAM_NAME + " " + genus, num_results=NUM_RESULTS))  # try to optimize the data structure
+    #     family_mapping.update({name: None})
+    #     found_family = False
+    #     result_index = 0
+    #     while not found_family and result_index < NUM_RESULTS:
+    #         result = results[result_index]
+    #         if result.find("aceae") == -1:
+    #             print("Family name not available.")
+    #         else:
+    #             print(result)
+    #             re.match("/[A-Za-z]aceae")
+    #             # find the index of 'aceae', and then search back to a '/'
+    #             family_mapping[name] = result[result.rfind("/") + 1:]
+    # print(f'There are {type_ct} types of trees listed in total, in terms of family represented scientifically.')
+
+    # results = search("family of fagus sylvatica", num=1, stop=1)
+    # for result in results:
+    #     print(result)
+
+    # gen_family_file = open(SUPERDIR_PATH + "family.txt", 'w')  # text file I/O
+    # family_mapping = [pair for pair in list(family_mapping.items()) if pair[1] is not None]
+    # valid_count = len(family_mapping)
+    # for index in range(valid_count):
+    #     fam, sci_name = family_mapping[index]
+    #     if index != valid_count - 1:
+    #         gen_family_file.write(f"{fam} - {sci_name}\n")
+    #     else:
+    #         gen_family_file.write(f"{fam} - {sci_name}")
+
+    # automated family searching
+    # com_collection, sci_collection = init_collections(SUPERDIR_PATH + COMMON_PATH,
+    #                                                   SUPERDIR_PATH + SCI_PATH)
+    # com_name = com_collection.readline().strip('\n')
+    # sci_name = sci_collection.readline().strip('\n')
+    # while com_collection and sci_collection:
+    #     print(f'{com_name}:', search(com_name))
+    #     print(f'{sci_name}:', search(sci_name))
+    #     com_name = com_collection.readline().strip('\n')
+    #     sci_name = sci_collection.readline().strip('\n')
+
+    # focus on genus rn
+    # may want to optimize the mechanism of mapping in the current implementations
+
+    @staticmethod  # integrate within a function
     def get_genera():
         """
 
         :return:
         """
+
         return set([sci_name if sci_name.find(" ") == -1 else sci_name[:sci_name.find(" ")]
                     for sci_name in COM_SCI_DB.values()])
 
     def get_genus_stats(self):
         """
-
+        Obtain the statistics of the genera of trees,
+        and return the parsed statistics.
         :return:
         """
+
         mapping = COM_SCI_DB
         genera = self.get_genera()
         data = self.get_data()
-        com_names = pd.Series(data[COM_NAME])
-        genus_stats = {}
+        com_names = pd.Series(data[COM_NAME])  # re-consider data structure
+        gen_stats = {}
         for genus in genera:
-            genus_stats.update({genus: 0})
+            gen_stats.update({genus: 0})
         for com_name in com_names:
             sci_name = mapping[com_name]
             if sci_name.find(" ") == -1:  # only have genus in the mapping
                 genus = sci_name
             else:  # the mapping has both genus and species
                 genus = sci_name[:sci_name.find(" ")]
-            genus_stats[genus] += 1
-        return genus_stats
+            gen_stats[genus] += 1
+        return gen_stats
 
     def show_genus_stats(self, genus_stats):
         """
@@ -252,12 +388,10 @@ class Inventory:
                 print(f'There are {count} {species} tree(s) across the campus, with a percentage of {percentage:.2f}%.')
 
     # get the percentage
-
     # def reformat(self, stats):
         # for data in stats:
         #     (refer to the sheets of scratch paper)
         #     (use a generic model and then vary with control logic)
-
     # could it be possible to make a generic version of show_xxx_stats()?
 
     def gen_report(self, stats):
@@ -277,8 +411,12 @@ if __name__ == "__main__":
     # Inventory.test_locals()
     # for name, val in vars("constants.py").items():
     #     print(f"name: {name}, val: {val}")
+
     inventory = Inventory(SUPERDIR_PATH + INVENTORY_PATH)
-    print(inventory.format_family_stats())
+    # print(inventory.format_family_stats())
+    # print()
+    # inventory.validate_family_stats()
+    inventory.store_family_stats()
 
 # wrap everything modularly in a main() call
 
@@ -294,46 +432,9 @@ if __name__ == "__main__":
 # inventory.show_species_stats(species_stats)
 # print()
 
-# family_mapping = {}
-# sci_names = list(inventory.get_mapping().values())
-# type_ct = len(sci_names)
-# NUM_RESULTS = 30
-# for name in sci_names:
-#     # handle the cases where the first result does not match (try to find some patterns)
-#     # use urllib if necessary
-#     genus = name[:name.index(" ")]
-#     results = list(search(FAM_NAME + " " + genus, num_results=NUM_RESULTS))  # try to optimize the data structure
-#     family_mapping.update({name: None})
-#     found_family = False
-#     result_index = 0
-#     while not found_family and result_index < NUM_RESULTS:
-#         result = results[result_index]
-#         if result.find("aceae") == -1:
-#             print("Family name not available.")
-#         else:
-#             print(result)
-#             re.match("/[A-Za-z]aceae")
-#             # find the index of 'aceae', and then search back to a '/'
-#             family_mapping[name] = result[result.rfind("/") + 1:]
-# print(f'There are {type_ct} types of trees listed in total, in terms of family represented scientifically.')
-
-# gen_family_file = open(SUPERDIR_PATH + "family.txt", 'w')  # text file I/O
-# family_mapping = [pair for pair in list(family_mapping.items()) if pair[1] is not None]
-# valid_count = len(family_mapping)
-# for index in range(valid_count):
-#     fam, sci_name = family_mapping[index]
-#     if index != valid_count - 1:
-#         gen_family_file.write(f"{fam} - {sci_name}\n")
-#     else:
-#         gen_family_file.write(f"{fam} - {sci_name}")
-
 # gen_genus_file
 
 # gen_species_file
-
-# results = search("family of fagus sylvatica", num=1, stop=1)
-# for result in results:
-#     print(result)
 
 # set up a mapping of common names to scientific names, to refer to in the analysis
 # extract genus: the ones have a space between genus name and species name need trimming, otherwise no need to
@@ -344,17 +445,6 @@ if __name__ == "__main__":
 # to handle genus: inventory["Genus"] = ""
 # to handle .sp: inventory["Species"] = ""
 # to handle .sp: inventory_species_stats = {}
-
-# automated family searching
-# com_collection, sci_collection = init_collections(SUPERDIR_PATH + COMMON_PATH,
-#                                                   SUPERDIR_PATH + SCI_PATH)
-# com_name = com_collection.readline().strip('\n')
-# sci_name = sci_collection.readline().strip('\n')
-# while com_collection and sci_collection:
-#     print(f'{com_name}:', search(com_name))
-#     print(f'{sci_name}:', search(sci_name))
-#     com_name = com_collection.readline().strip('\n')
-#     sci_name = sci_collection.readline().strip('\n')
 
 # inventory validation: use when an update happens, and need to improve reusability
 # valid_count = 0
@@ -394,8 +484,6 @@ if __name__ == "__main__":
 #         inventory_name_list.append(current_common_name)
 #     else:
 #         inventory_name_dict[current_common_name] += 1
-
-# map the genus to family
 
 # reuse anytime a new type comes available
 # search_results = []
