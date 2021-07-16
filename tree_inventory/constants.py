@@ -76,19 +76,27 @@ import pandas as pd
 
 # 7/13/21 meeting agenda
 # 1. project update:
-#    review the features of the new data table, and add them to the old one (7/8/21)
-#    finalize constants module: might want to consider .xlsx instead of .csv for the dataset
-#    re-concatenate the DataFrames: review columns C&G, add more references, and ask about sub-family in Wikipedia
-#    update Wikipedia page with Magnolia, Robinia, Gleditsia if needed
-#    complete the module to calculate the distributions of families
-#    formalize the design of formatting
+#    review the features of the combined data table, and add them to the old one to update the dataset
+#    finalize the constants module: bring the meeting sheets; clean the commented code by the next meeting (7/20/21) c
+#    re-concatenate the DataFrames: review columns C&G, and ask about sub-family in Wikipedia 7/13
+#    ask about references to add, and update Wikipedia page with Magnolia, Robinia, Gleditsia if needed (7/13/21)
+#    develop the analysis module: calculate the distributions of families h/c
+# 2. Committee update: email Ashok about the green grant, and update with the website description h/c
+# 3. ArcGIS learning pathway update: payment; consulting (and replying) Prof. Ghaly and do more useful things if needed
+#    learn.arcgis.com h/c
+# 4. Facilities update: any if any new settings to take care of in the upcoming academic year,
+#    or any outreaching from clubs
 
+# 7/27/21 meeting agenda
+# 1. project update:
+#    refactor the family stats methods with the help of sheets: in compiler output, validate and format the output;
+#    in system I/O, visualize and store the output (7/15/21).
 
-# bug record
+# stressful bug records
 # 5/4/21 UnicodeDecodeError: 'utf-8' codec can't decode byte 0xd4 in position 271: invalid continuation byte; resolved
-# 5/8/21 requests.exceptions.HTTPError: 429 Client Error: Too Many Requests for url:
-# (searching url); resolved (by switching a method to tackle)
+# 5/8/21 requests.exceptions.HTTPError: 429 Client Error: Too Many Requests for url: (searching url); resolved
 # 6/21/21 TypeError: first argument must be an iterable of pandas objects, you passed an object of type "Series"
+# 7/15/21 float precision when calculating percentages
 
 
 def init_collection(path):
@@ -226,6 +234,30 @@ def get_fam_gen(species):
     return family, genus
 
 
+def get_round_digits(num):
+    """
+    Compute the number of digits that optimally rounds
+    a given float number, and return this number.
+    :param num: the given float number to round.
+    :return: the count of digits to round the number.
+    """
+    digit_count = 0
+    while num < 1:
+        num *= ROUND_SCALE
+        digit_count += 1
+    return digit_count if num == 1 else digit_count + 1
+
+
+def get_feat_counts(db_feats):
+    """
+    Compute the count of features of a statistical database
+    of trees, along with the count of features considered
+    percentage-related. Return the set of these two counts.
+    :param db_feats: the features of the database.
+    :return: the set of the two significant counts.
+    """
+
+
 SUPERDIR_PATH = "/Users/allenzhong/Downloads/tree_inventory/"  # need to change when runs on a different machine
 COM_PATH = "Accurate Treelist Common 2.1.txt"
 SCI_PATH = "Accurate Treelist Scientific 2.1.txt"
@@ -239,6 +271,11 @@ MOD_SPECIES = "*species*"
 CROSS_REPR = "X"  # consider modify the data structure
 FAM = "Family"
 GEN = "Genus"
+FAM_LMT = 0.3
+GEN_LMT = 0.2
+SPE_LMT = 0.1
+ROUND_SCALE = 10
+FAM_DB_FEATS = ["Species Name", "Family Name", "# of Instances", "% Within The Family", "% Within The Population"]
 COM_SCI_DB = map_com_sci(SUPERDIR_PATH + COM_PATH, SUPERDIR_PATH + SCI_PATH)
 FAM_GEN_DB = map_fam_gen(FAM_GEN_DICTS)
 
